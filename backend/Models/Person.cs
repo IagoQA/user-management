@@ -5,19 +5,12 @@ namespace backend.Models
     public class Person
     {
         public int Id { get; set; }
-        [Required]
         [MinLength(2)]
+        [Required(ErrorMessage = "Nome é obrigatório")]
         public string Name { get; set; } = string.Empty;
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
-        [Required]
-        public string Address { get; set; } = string.Empty;
-        [Required]
-        [Phone]
-        [StringLength(20)]
+        public string? Email { get; set; } = string.Empty;
+        public string? Address { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Telefone é obrigatório")]
         public string Phone { get; set; } = string.Empty;
-        public bool IsActive { get; set; } = true;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

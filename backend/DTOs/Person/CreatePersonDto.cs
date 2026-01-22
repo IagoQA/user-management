@@ -4,16 +4,12 @@ namespace backend.DTOs.Person
 {
     public class CreatePersonDto
     {
-        [Required]
         [MinLength(2)]
+        [Required(ErrorMessage = "Nome é obrigatório")]
         public string Name { get; set; } = string.Empty;
-        [Required]
-        [EmailAddress]
         public string Email { get; set; } = string.Empty;
-        [Required]
         public string Address { get; set; } = string.Empty;
-        [Required]
-        [Phone]
+        [Required(ErrorMessage = "Telefone é obrigatório")]
         public string Phone { get; set; } = string.Empty;
     }
 }

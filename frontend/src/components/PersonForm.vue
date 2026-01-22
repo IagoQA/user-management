@@ -7,6 +7,8 @@
             <input v-model="form.name" placeholder="Nome" />
         </div>
 
+        <p v-if="error" class="error">{{ error }}</p>
+
         <div class="emailField">
             <label>Email</label>
             <input v-model="form.email" placeholder="Email" />
@@ -22,7 +24,15 @@
             <input v-model="form.address" placeholder="Endereço" />
         </div>
 
-        <button @click="savePerson">Salvar</button>
+        <div class="actionsBtn">
+            <button @click="savePerson" class="button">
+                {{ person ? 'Atualizar' : 'Salvar' }}
+            </button>
+
+            <button class="button" @click="cancel">
+                Cancelar
+            </button>
+        </div>
     </div>
 </template>
 
@@ -30,58 +40,83 @@
 import api from '@/api/api'
 
 export default {
-    data() {
-        return {
-            form: {
-                id: null,
-                name: '',
-                email: '',
-                phone: '',
-                address: ''
-            }
-        }
-    },
-    methods: {
-        async savePerson() {
-            if (this.form.id) {
-                await api.put(`/persons/${this.form.id}`, this.form)
-                alert('Pessoa atualizada com sucesso!')
-            } else {
-                await api.post('/persons', this.form)
-                alert('Pessoa criada com sucesso!')
-            }
-
-            this.$emit('saved')
-        }
-    },
     props: {
         person: {
             type: Object,
-            default: () => ({
-                id: null,
+            default: null
+        }
+    },
+    data() {
+        return {
+            form: {
                 name: '',
                 email: '',
                 phone: '',
                 address: ''
-            })
+            },
+            error: ''
         }
     },
     watch: {
         person: {
             immediate: true,
-            handler(newVal) {
-                if (newVal) {
-                    this.form = { ...newVal };
+            handler(p) {
+                if (p) {
+                    this.form = { ...p };
                 } else {
-                    this.reset();
+                    this.reset()
                 }
             }
+        }
+    },
+    methods: {
+        async savePerson() {
+            if (!this.form.name || !this.form.name.trim()) {
+                this.error = 'O nome é obrigatório.'
+                return
+            } else {
+                this.error = ''
+            }
+
+            if (this.person) {
+                await api.put(`/persons/${this.person.id}`, this.form)
+            } else {
+                await api.post('/persons',
+                    {
+                        name: this.form.name,
+                        email: this.form.email,
+                        phone: this.form.phone,
+                        address: this.form.address
+                    })
+            }
+
+            this.$emit('saved')
+            this.reset()
+        },
+        cancel() {
+            this.reset()
+            this.$emit('cancel')
+        },
+        reset() {
+            this.form = {
+                name: '',
+                email: '',
+                phone: '',
+                address: ''
+            }
+            this.error = ''
         }
     }
 }
 </script>
 
 <style>
+.error {
+    color: red;
+    margin-top: 10px 0;
+    font-size: 14px;
+}
+
 h2 {
     margin-bottom: 20px;
 }
@@ -104,8 +139,13 @@ div.passwordField {
     gap: 5px;
 }
 
-button {
-    margin-top: 20px;
+.actionsBtn {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+}
+
+.actionsBtn .button {
     padding: 8px 14px;
     background-color: #2b2b2b;
     color: #ffffff;
@@ -113,7 +153,7 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.actionsBtn .button:hover {
     background-color: #00d0d0;
     color: #000;
 }

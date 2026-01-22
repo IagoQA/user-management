@@ -11,6 +11,5 @@ namespace backend.Data
         }
 
         public DbSet<Person> Persons { get; set; }
-        public DbSet<User> Users { get; set; }
     }
 }

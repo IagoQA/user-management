@@ -14,7 +14,7 @@ export default {
     },
     methods: {
         selectPerson(person) {
-            this.selectedPerson = { ...person }; // clone
+            this.selectedPerson = { ...person };
         },
 
         async loadPersons() {

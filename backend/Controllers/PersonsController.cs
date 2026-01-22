@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models;
@@ -6,6 +7,7 @@ using backend.DTOs.Person;
 
 namespace backend.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/persons")]
     public class PersonsController : ControllerBase
@@ -24,7 +26,9 @@ namespace backend.Controllers
                 {
                     Id = u.Id,
                     Name = u.Name,
-                    Email = u.Email
+                    Email = u.Email,
+                    Phone = u.Phone,
+                    Address = u.Address
                 })
                 .ToListAsync();
 
@@ -40,7 +44,9 @@ namespace backend.Controllers
                 {
                     Id = u.Id,
                     Name = u.Name,
-                    Email = u.Email
+                    Email = u.Email,
+                    Phone = u.Phone,
+                    Address = u.Address
                 })
                 .FirstOrDefaultAsync();
 
@@ -64,6 +70,8 @@ namespace backend.Controllers
             {
                 Name = dto.Name,
                 Email = dto.Email,
+                Phone = dto.Phone,
+                Address = dto.Address
             };
 
             _context.Persons.Add(person);
@@ -73,7 +81,9 @@ namespace backend.Controllers
             {
                 Id = person.Id,
                 Name = person.Name,
-                Email = person.Email
+                Email = person.Email,
+                Phone = person.Phone,
+                Address = person.Address
             });
         }
 
@@ -87,6 +97,8 @@ namespace backend.Controllers
             }
             person.Name = dto.Name;
             person.Email = dto.Email;
+            person.Phone = dto.Phone;
+            person.Address = dto.Address;
             await _context.SaveChangesAsync();
             return NoContent();
         }

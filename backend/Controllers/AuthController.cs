@@ -1,71 +1,46 @@
-﻿using backend.Data;
-using backend.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using backend.DTOs.Auth;
-using backend.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController(AppDbContext context) : ControllerBase
+    [Route("api/auth")]
+    public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _context = context;
-
-        [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var exists = await _context.Users
-                .AnyAsync(u => u.UserName == dto.UserName);
-
-            if (exists)
-                return BadRequest("Usuário já existe.");
-
-            var person = new Person
-            {
-                Name = dto.Name,
-                Email = dto.Email
-            };
-
-            var user = new User
-            {
-                UserName = dto.UserName,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Person = person
-            };
-
-            _context.Persons.Add(person);
-            _context.Users.Add(user);
-
-            await _context.SaveChangesAsync();
-
-            return Ok("Registrado com sucesso.");
-        }
+        private const string USERNAME = "Iago";
+        private const string PASSWORD = "iagoteste";
+        private const string JWT_KEY = "d8L!ZK9R0Sx@H#A2WJ7P%QyM^B6C$E1F";
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public IActionResult Login([FromBody] LoginDto dto)
         {
-            var user = await _context.Users
-                .Include(u => u.Person)
-                .FirstOrDefaultAsync(u => u.UserName == dto.UserName);
+            if (dto.Username != USERNAME || dto.Password != PASSWORD)
+            {
+                return Unauthorized(new { message = "Usuário ou senha inválidos" });
+            }
 
-            if (user == null)
-                return Unauthorized("Usuário ou senha inválidos.");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(JWT_KEY);
 
-            var valid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
-            if (!valid)
-                return Unauthorized("Usuário ou senha inválidos.");
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, dto.Username)
+                }),
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return Ok(new
             {
-                message = "Login OK",
-                userId = user.Id,
-                personId = user.PersonId,
-                name = user.Person?.Name
+                token = tokenHandler.WriteToken(token)
             });
         }
     }

@@ -2,12 +2,11 @@
     <div>
         <h2>Lista de Pessoas</h2>
 
-        <input v-model="search" placeholder='Buscar por "Nome" ou "Telefone"' />
+        <input v-model="search" placeholder="Buscar..."/>
 
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Nome</th>
                     <th>Telefone</th>
                     <th>Email</th>
@@ -18,7 +17,6 @@
 
             <tbody>
                 <tr v-for="p in filteredPersons" :key="p.id">
-                    <td>{{ p.id }}</td>
                     <td>{{ p.name }}</td>
                     <td>{{ p.phone }}</td>
                     <td>{{ p.email }}</td>
@@ -54,8 +52,7 @@ export default {
 
             return this.persons.filter(p => {
                 return (
-                    this.normalize(p.name).includes(term) ||
-                    this.normalize(p.phone).includes(term)
+                    this.normalize(p.name).includes(term)
                 );
             });
         }
