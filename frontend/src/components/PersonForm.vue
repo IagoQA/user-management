@@ -7,7 +7,7 @@
             <input v-model="form.name" placeholder="Nome" />
         </div>
 
-        <p v-if="error" class="error">{{ error }}</p>
+        <p v-if="error" class="error">O Nome é obrigatório.</p>
 
         <div class="emailField">
             <label>Email</label>
@@ -18,6 +18,8 @@
             <label>Telefone</label>
             <input v-model="form.phone" placeholder="Telefone" />
         </div>
+
+        <p v-if="error" class="error">O Telefone é obrigatório.</p>
 
         <div class="addressField">
             <label>Endereço</label>
@@ -73,6 +75,13 @@ export default {
         async savePerson() {
             if (!this.form.name || !this.form.name.trim()) {
                 this.error = 'O nome é obrigatório.'
+                return
+            } else {
+                this.error = ''
+            }
+
+            if (!this.form.phone || !this.form.phone.trim()) {
+                this.error = 'O telefone é obrigatório.'
                 return
             } else {
                 this.error = ''
